@@ -22,7 +22,12 @@
 
 FROM node:26.4.0-alpine
 
-RUN apk --no-cache add git
+# curl não vem na imagem alpine, e o healthcheck do Coolify depende dele: sem
+# curl nem wget o container sobe saudável, a sonda falha assim mesmo e o
+# rolling update reverte para a versão anterior. O wget do busybox não serve —
+# ele quebra o handshake quando a sonda usa https contra a porta 8000, que é
+# HTTP puro atrás do Traefik.
+RUN apk --no-cache add git curl
 
 WORKDIR /usr/src/app
 
