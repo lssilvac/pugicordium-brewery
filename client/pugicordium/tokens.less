@@ -1,0 +1,134 @@
+/*
+ * Tokens da identidade visual do Pugicordium.
+ *
+ * Fonte da verdade: pugicordium/03-BRANDING.md. Se este arquivo divergir
+ * daquele documento, o documento ganha e este se corrige.
+ *
+ * Arquitetura em duas camadas, herdada do carismaonline:
+ *   1. --pg-*      valores brutos da paleta. Ninguém consome direto.
+ *   2. --pg-c-*    tokens semânticos. É o que a interface usa.
+ *
+ * A separação é o que permite trocar uma cor sem caçar ocorrência: muda-se o
+ * bruto, e todo mundo que fala em "superfície" acompanha.
+ *
+ * Contrastes conferidos por pugicordium/ferramentas/contraste.mjs. Cor nova
+ * passa pelo script antes de entrar aqui.
+ */
+
+:root {
+	/* ---- Camada 1: paleta bruta ------------------------------------------
+	 * Os cinco primeiros vêm de interlunio/05-arte/BIBLIA-VISUAL.md sem
+	 * alteração. São a cor do material impresso; a interface obedece a ele.
+	 */
+	--pg-prata      : #c9cfd6; /* prata lunar   — a Torre limpa, o luar */
+	--pg-indigo     : #3b3a63; /* índigo        — a cor da casa */
+	--pg-vacuo      : #0a0a10; /* preto de vácuo— o céu, a Pupila */
+	--pg-latao      : #a8813f; /* latão         — a Cúpula, as máquinas */
+	--pg-icor       : #e0b352; /* ouro de ícor  — o que o desejo fez */
+
+	/* duotone do track técnico, para superfícies "de documento" */
+	--pg-sepia      : #6b5236;
+	--pg-papel      : #e8dcc0;
+
+	/* derivados: escala de profundidade sem introduzir matiz novo */
+	--pg-vacuo-100  : #12121c;
+	--pg-vacuo-200  : #1a1a28;
+	--pg-indigo-300 : #2a2947;
+	--pg-indigo-600 : #544f86;
+	--pg-prata-dim  : #8d939c;
+	--pg-icor-dim   : #a8834a;
+
+	/* semânticas: as únicas cores novas. Escolhidas para não brigar com o
+	 * ouro e para passar AA sobre o vácuo. */
+	--pg-perigo     : #c26571; /* 5,07 sobre vácuo */
+	--pg-cautela    : #c9973f; /* 7,50 sobre vácuo */
+	--pg-sereno     : #6fa39d; /* 6,96 sobre vácuo */
+
+	/* ---- Camada 2: tokens semânticos -------------------------------------
+	 * É isto que a interface consome. Nunca use --pg-* direto num componente.
+	 */
+	--pg-c-fundo          : var(--pg-vacuo);
+	--pg-c-superficie     : var(--pg-vacuo-100);
+	--pg-c-superficie-2   : var(--pg-vacuo-200);
+	--pg-c-flutuante      : var(--pg-indigo-300);
+
+	--pg-c-texto          : var(--pg-prata);
+	--pg-c-texto-suave    : var(--pg-prata-dim);
+	--pg-c-texto-invertido: var(--pg-vacuo);
+
+	--pg-c-borda          : var(--pg-indigo-300);
+	--pg-c-borda-forte    : var(--pg-indigo);
+	--pg-c-moldura        : var(--pg-latao);
+
+	--pg-c-acao           : var(--pg-icor);
+	--pg-c-acao-texto     : var(--pg-vacuo);
+	--pg-c-acao-inativa   : var(--pg-icor-dim);
+	--pg-c-foco           : var(--pg-icor);
+	--pg-c-selecao        : var(--pg-indigo);
+
+	--pg-c-erro           : var(--pg-perigo);
+	--pg-c-aviso          : var(--pg-cautela);
+	--pg-c-ok             : var(--pg-sereno);
+
+	/* ---- Tipografia -------------------------------------------------------
+	 * Os nomes abaixo são os que themes/fonts/5e/fonts.less já declara — não
+	 * os nomes dos arquivos .woff2. Redeclarar @font-face aqui duplicaria o
+	 * download e arriscaria errar o caminho; skin.less importa o fonts.less
+	 * deles, do mesmo jeito que snippetbar.less já faz.
+	 *
+	 * Nenhuma requisição a CDN: a instância roda atrás de proxy e precisa
+	 * subir sem rede externa.
+	 */
+	--pg-f-display : 'NodestoCapsCondensed', Georgia, serif;
+	--pg-f-corpo   : 'ScalySansRemake', 'Segoe UI', system-ui, sans-serif;
+	--pg-f-caps    : 'MrEavesRemake', var(--pg-f-corpo);
+	--pg-f-mono    : ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+
+	/* escala de terça maior (1,25) */
+	--pg-txt-xs    : 0.75rem;
+	--pg-txt-sm    : 0.875rem;
+	--pg-txt-base  : 1rem;
+	--pg-txt-lg    : 1.25rem;
+	--pg-txt-xl    : 1.563rem;
+	--pg-txt-2xl   : 1.953rem;
+	--pg-txt-3xl   : 2.441rem;
+
+	--pg-lh-corpo   : 1.6;
+	--pg-lh-display : 1.15;
+	--pg-ls-caps    : 0.05em;
+
+	/* ---- Espaço e forma ---------------------------------------------------
+	 * Base 4px. Raio pequeno de propósito: canto muito arredondado lê como
+	 * aplicativo de celular, e o material é um livro impresso.
+	 */
+	--pg-e-1  : 4px;
+	--pg-e-2  : 8px;
+	--pg-e-3  : 12px;
+	--pg-e-4  : 16px;
+	--pg-e-6  : 24px;
+	--pg-e-8  : 32px;
+	--pg-e-12 : 48px;
+	--pg-e-16 : 64px;
+
+	--pg-r-sm   : 2px;
+	--pg-r-md   : 4px;
+	--pg-r-lg   : 8px;
+	--pg-r-full : 9999px;
+
+	/* Sombra dura e curta é a única permitida. Sombra borrada é névoa, e a
+	 * bíblia visual proíbe névoa: no vácuo não há atmosfera para espalhar
+	 * luz. Elevação se faz por degrau de superfície e borda. */
+	--pg-sombra : 2px 2px 0 rgba(10, 10, 16, 0.6);
+
+	--pg-transicao : 120ms ease-out;
+}
+
+/*
+ * prefers-reduced-motion: regra que o carismaonline declara no brief e não
+ * implementa (zero ocorrências no repo dele). Aqui está implementada.
+ */
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--pg-transicao : 0ms;
+	}
+}

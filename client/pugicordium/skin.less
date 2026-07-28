@@ -1,0 +1,172 @@
+/*
+ * Skin do Pugicordium sobre a interface do Homebrewery.
+ *
+ * ============================ POR QUE ASSIM ============================
+ *
+ * A regra dura do fork é somar arquivos e nunca editar os do upstream, para
+ * que `git merge upstream/master` continue barato. Este arquivo respeita a
+ * regra por inteiro: ele reveste os seletores que já existem, sem tocar em
+ * nenhum componente React.
+ *
+ * O documento renderizado NÃO é afetado. O brewRenderer monta o brew dentro
+ * de um iframe, e CSS não atravessa iframe. Isso é o que permite reestilizar
+ * a aplicação inteira sem encostar no que dá valor ao Homebrewery: o
+ * brewRenderer, os temas e a cadeia de plugins do marked. A skin é a moldura;
+ * o quadro continua sendo deles.
+ *
+ * Ponto de entrada: uma linha em client/homebrew/main.jsx. Esse arquivo tem 8
+ * linhas e mudou 7 vezes em 3 anos no upstream — contra 58 de homebrew.jsx.
+ * É o menor conflito de merge disponível no projeto.
+ *
+ * Especificidade: o upstream usa seletores rasos e algumas cores diretas.
+ * Onde foi preciso vencer, a regra é dobrar a classe (.homebrew.homebrew) em
+ * vez de !important, que é reversível e não contamina quem vier depois.
+ */
+
+@import 'tokens.less';
+// Famílias de fonte: reaproveita a declaração do upstream em vez de redeclarar
+// @font-face. Duplicar baixaria a mesma fonte duas vezes e arriscaria errar o
+// caminho — snippetbar.less já usa exatamente este import.
+@import (less) '@themes/fonts/5e/fonts.less';
+
+/* ===================================================================
+ * 1. Superfície base
+ * =================================================================== */
+
+.homebrew.homebrew {
+	background-color : var(--pg-c-fundo);
+	color            : var(--pg-c-texto);
+	font-family      : var(--pg-f-corpo);
+
+	/* O upstream pinta o fundo de darkred quando detecta deployment, para
+	 * avisar que não é produção. Nossa instância É a produção — o vermelho
+	 * seria mentira visual. */
+	&.deployment { background-color : var(--pg-c-fundo); }
+}
+
+.sitePage > .content { background-color : var(--pg-c-fundo); }
+
+/* ===================================================================
+ * 2. Navbar
+ * =================================================================== */
+
+.navbar {
+	background-color : var(--pg-c-superficie);
+	border-bottom    : 1px solid var(--pg-c-moldura);
+	font-family      : var(--pg-f-display);
+	letter-spacing   : var(--pg-ls-caps);
+
+	.navItem {
+		color       : var(--pg-c-texto);
+		transition  : background-color var(--pg-transicao), color var(--pg-transicao);
+
+		&:hover {
+			background-color : var(--pg-c-selecao);
+			color            : var(--pg-c-acao);
+		}
+
+		/* Foco visível é obrigatório. O upstream zera outline em vários
+		 * pontos sem oferecer substituto. */
+		&:focus-visible {
+			outline        : 2px solid var(--pg-c-foco);
+			outline-offset : -2px;
+		}
+	}
+
+	/* O logo do upstream aponta para a marca deles. Vira o nome da casa. */
+	.homebrewLogo div {
+		font-family : var(--pg-f-display);
+		color       : var(--pg-c-acao);
+		font-size   : var(--pg-txt-base);
+	}
+}
+
+/* Menus suspensos: separação por degrau de superfície e borda de latão, não
+ * por sombra borrada. A bíblia visual proíbe névoa — fora da Cúpula não há
+ * atmosfera, e sombra difusa é atmosfera. A sombra dura dá o recorte que um
+ * menu flutuante precisa sem violar a regra. */
+.navDropdown,
+.navbar .dropdown {
+	background-color : var(--pg-c-flutuante);
+	border           : 1px solid var(--pg-c-moldura);
+	border-radius    : var(--pg-r-md);
+	box-shadow       : var(--pg-sombra);
+	color            : var(--pg-c-texto);
+	font-family      : var(--pg-f-corpo);
+	letter-spacing   : normal;
+}
+
+/* ===================================================================
+ * 3. O que não existe nesta instância
+ *
+ * Escondido por CSS, não removido do código: se o upstream mudar a
+ * marcação, o pior caso é o item reaparecer — degradação suave, em vez de
+ * conflito de merge ou tela quebrada.
+ * =================================================================== */
+
+.navbar .patreon { display : none; }
+
+/* ===================================================================
+ * 4. Acessibilidade
+ * =================================================================== */
+
+/* Alvo de toque mínimo. Copiado do carismaonline
+ * (resources/css/app.css, bloco @media (pointer: coarse)): resolve uma vez na
+ * base em vez de espalhar altura por componente. */
+@media (pointer : coarse) {
+	.homebrew {
+		.navItem,
+		button,
+		[role='button'],
+		select,
+		input:not([type='checkbox']):not([type='radio']):not([type='hidden']) {
+			min-height : 2.75rem;
+		}
+	}
+}
+
+/* Foco global. Vale para tudo que o navegador considere focável. */
+.homebrew :focus-visible {
+	outline        : 2px solid var(--pg-c-foco);
+	outline-offset : 2px;
+}
+
+/* Seleção de texto na cor da casa. */
+.homebrew ::selection {
+	background-color : var(--pg-c-selecao);
+	color            : var(--pg-c-texto);
+}
+
+/* ===================================================================
+ * 5. Formulários e ações
+ * =================================================================== */
+
+.homebrew {
+	button:not(.navItem) {
+		font-family   : var(--pg-f-caps);
+		border-radius : var(--pg-r-sm);
+		transition    : background-color var(--pg-transicao);
+	}
+
+	input[type='text'],
+	input[type='search'],
+	textarea,
+	select {
+		background-color : var(--pg-c-superficie-2);
+		border           : 1px solid var(--pg-c-borda);
+		border-radius    : var(--pg-r-sm);
+		color            : var(--pg-c-texto);
+		font-family      : var(--pg-f-corpo);
+
+		&::placeholder { color : var(--pg-c-texto-suave); }
+	}
+}
+
+/* ===================================================================
+ * 6. Barra de rolagem
+ * =================================================================== */
+
+.homebrew {
+	scrollbar-color : var(--pg-c-borda-forte) var(--pg-c-fundo);
+	scrollbar-width : thin;
+}
