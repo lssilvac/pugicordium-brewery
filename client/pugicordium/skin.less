@@ -48,45 +48,73 @@
 
 /* ===================================================================
  * 2. Navbar
+ *
+ * A barra é um <nav> SEM CLASSE — não existe `.navbar` no DOM, apesar de
+ * navbar.less declarar esse seletor. A estrutura real, verificada no
+ * navegador contra a instância em produção, é:
+ *
+ *   div.homebrew > div.sitePage > nav > div.navSection > a.navItem
+ *
+ * Escrever `.navbar` aqui foi o primeiro erro desta folha: compilou, subiu
+ * e não pintou nada.
  * =================================================================== */
 
-.navbar {
+.homebrew nav {
 	background-color : var(--pg-c-superficie);
 	border-bottom    : 1px solid var(--pg-c-moldura);
 	font-family      : var(--pg-f-display);
 	letter-spacing   : var(--pg-ls-caps);
+}
 
-	.navItem {
-		color       : var(--pg-c-texto);
-		transition  : background-color var(--pg-transicao), color var(--pg-transicao);
+.homebrew .navItem {
+	color      : var(--pg-c-texto);
+	transition : background-color var(--pg-transicao), color var(--pg-transicao);
+
+	&:hover {
+		background-color : var(--pg-c-selecao);
+		color            : var(--pg-c-acao);
+	}
+
+	/* Foco visível é obrigatório. O upstream zera outline em vários pontos
+	 * sem oferecer substituto. */
+	&:focus-visible {
+		outline        : 2px solid var(--pg-c-foco);
+		outline-offset : -2px;
+	}
+}
+
+/* Os itens carregam classes de cor da paleta Flat UI de 2013 (.green,
+ * .purple, .blue…), que o upstream usa para tingir cada botão. Neutralizadas
+ * para a paleta da casa: cor de item é função do estado, não do papel.
+ *
+ * A dobra de classe (.navItem.navItem) vence a especificidade do upstream
+ * sem !important — reversível, e não contamina quem vier depois. */
+.homebrew .navItem.navItem {
+	&.green, &.purple, &.blue, &.red, &.teal, &.orange, &.yellow {
+		background-color : transparent;
+		color            : var(--pg-c-texto);
 
 		&:hover {
 			background-color : var(--pg-c-selecao);
 			color            : var(--pg-c-acao);
 		}
-
-		/* Foco visível é obrigatório. O upstream zera outline em vários
-		 * pontos sem oferecer substituto. */
-		&:focus-visible {
-			outline        : 2px solid var(--pg-c-foco);
-			outline-offset : -2px;
-		}
 	}
+}
 
-	/* O logo do upstream aponta para a marca deles. Vira o nome da casa. */
-	.homebrewLogo div {
-		font-family : var(--pg-f-display);
-		color       : var(--pg-c-acao);
-		font-size   : var(--pg-txt-base);
-	}
+/* O logo do upstream nomeia a marca deles. Vira o nome da casa. */
+.homebrew .homebrewLogo div {
+	font-family : var(--pg-f-display);
+	color       : var(--pg-c-acao);
+	font-size   : var(--pg-txt-base);
 }
 
 /* Menus suspensos: separação por degrau de superfície e borda de latão, não
  * por sombra borrada. A bíblia visual proíbe névoa — fora da Cúpula não há
  * atmosfera, e sombra difusa é atmosfera. A sombra dura dá o recorte que um
  * menu flutuante precisa sem violar a regra. */
-.navDropdown,
-.navbar .dropdown {
+.homebrew .navDropdown,
+.homebrew .navDropdownContainer .dropdown,
+.homebrew nav .dropdown {
 	background-color : var(--pg-c-flutuante);
 	border           : 1px solid var(--pg-c-moldura);
 	border-radius    : var(--pg-r-md);
@@ -104,7 +132,65 @@
  * conflito de merge ou tela quebrada.
  * =================================================================== */
 
-.navbar .patreon { display : none; }
+.homebrew .navItem.patreon { display : none; }
+
+/* ===================================================================
+ * 3b. Editor: barra de snippets, menus e divisores
+ *
+ * O CodeMirror em si NÃO é pintado aqui — ele troca de tema por
+ * inicializar.js, que põe o 'darkbrewery' (nativo, já no repo) como padrão.
+ * Forçar cor no CodeMirror por CSS deixaria o destaque de sintaxe ilegível,
+ * porque as cores do texto são calibradas para o fundo do tema.
+ *
+ * O que sobra aqui é a moldura do editor, que nenhum tema do CodeMirror
+ * alcança. As superfícies abaixo foram levantadas medindo a área ocupada por
+ * cada fundo claro na página real, não por chute.
+ * =================================================================== */
+
+.homebrew {
+	/* container do CodeMirror — o tema não pinta o pai */
+	.editor { background-color : var(--pg-c-fundo); }
+
+	.snippetBar {
+		background-color : var(--pg-c-superficie);
+		border-bottom    : 1px solid var(--pg-c-borda);
+		color            : var(--pg-c-texto);
+	}
+
+	/* menus de snippet: 35 listas, 177 itens — é a maior contagem de
+	 * elementos da interface, e o que o autor mais usa */
+	.menu-list {
+		background-color : var(--pg-c-flutuante);
+		border           : 1px solid var(--pg-c-moldura);
+		border-radius    : var(--pg-r-md);
+		box-shadow       : var(--pg-sombra);
+		color            : var(--pg-c-texto);
+	}
+
+	.menu-item {
+		color      : var(--pg-c-texto);
+		transition : background-color var(--pg-transicao);
+
+		&:hover {
+			background-color : var(--pg-c-selecao);
+			color            : var(--pg-c-acao);
+		}
+	}
+
+	.menu-name { color : var(--pg-c-texto); }
+
+	.divider { background-color : var(--pg-c-borda-forte); }
+
+	.arrow {
+		background-color : var(--pg-c-superficie-2);
+		color            : var(--pg-c-texto);
+
+		&:hover { background-color : var(--pg-c-selecao); }
+	}
+
+	/* ícones da barra de ferramentas do renderizador */
+	.tool, .fac { color : var(--pg-c-texto); }
+}
 
 /* ===================================================================
  * 4. Acessibilidade
