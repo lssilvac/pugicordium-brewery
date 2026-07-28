@@ -56,4 +56,11 @@ ENV NODE_ENV=production
 
 EXPOSE 8000
 
-CMD [ "npm", "start" ]
+# Entrypoint próprio, não o `npm start` do upstream.
+#
+# server-pugicordium.js monta a API v1 e o filtro de privacidade ANTES do app
+# do Homebrewery, e usa o app deles como middleware final. Rotas novas
+# precisam vir antes do catch-all do upstream, e essa é a única forma de
+# conseguir isso sem editar server/app.js — que tem 235 commits e é o arquivo
+# mais volátil do servidor.
+CMD [ "node", "server-pugicordium.js" ]
