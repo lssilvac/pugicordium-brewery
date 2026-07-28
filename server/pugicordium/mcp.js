@@ -189,28 +189,60 @@ async function executar(nome, args, chave) {
 		}
 
 		case 'snippet_buscar': {
-			const tema = args.tema || '5ePHB';
+			/*
+			 * Os snippets são LIDOS COMO TEXTO, não importados.
+			 *
+			 * O snippets.js de cada tema é código de cliente: referencia
+			 * `window` e estoura com "window is not defined" no servidor.
+			 * Além disso, importar executaria código de tema no processo do
+			 * servidor, o que não é coisa que se queira por conveniência.
+			 *
+			 * Extrair `groupName` e `name` por regex é frágil quanto a
+			 * formatação, mas é seguro e suficiente: o que a IA precisa é
+			 * saber QUAIS blocos existem, para pedir o certo em vez de
+			 * inventar tag — que é o que o CLAUDE.md do vault proíbe.
+			 */
+			const tema  = (args.tema || '5ePHB').replace(/[^\w-]/g, ''); // evita path traversal
 			const termo = (args.termo || '').toLowerCase();
 
-			const { default: snippets } = await import(`../../themes/V3/${tema}/snippets.js`)
-				.catch(()=>({ default: [] }));
+			const { readFileSync } = await import('fs');
+			const { resolve } = await import('path');
 
-			const achados = [];
+			let fonte;
 
-			for (const grupo of snippets) {
-				for (const s of (grupo.snippets ?? [])) {
-					if(termo && !s.name?.toLowerCase().includes(termo)) continue;
-
-					achados.push({
-						grupo : grupo.groupName,
-						nome  : s.name,
-						// snippet pode ser função (gera dinamicamente) ou string
-						sintaxe : typeof s.gen === 'string' ? s.gen : '(gerado dinamicamente)',
-					});
-				}
+			try {
+				fonte = readFileSync(resolve(process.cwd(), `themes/V3/${tema}/snippets.js`), 'utf-8');
+			} catch (e) {
+				throw new Error(`Tema "${tema}" não tem snippets nesta instância. Use tema_listar.`);
 			}
 
-			return { tema, total: achados.length, snippets: achados.slice(0, 40) };
+			const achados = [];
+			let grupoAtual = '(sem grupo)';
+
+			// Percorre na ordem do arquivo para associar cada snippet ao grupo
+			// declarado acima dele.
+			const linhas = fonte.split('\n');
+
+			for (const linha of linhas) {
+				const grupo = linha.match(/groupName\s*:\s*['"`](.+?)['"`]/);
+
+				if(grupo) { grupoAtual = grupo[1]; continue; }
+
+				const nome = linha.match(/^\s*name\s*:\s*['"`](.+?)['"`]/);
+
+				if(!nome) continue;
+				if(termo && !nome[1].toLowerCase().includes(termo)) continue;
+
+				achados.push({ grupo: grupoAtual, nome: nome[1] });
+			}
+
+			return {
+				tema,
+				total    : achados.length,
+				snippets : achados.slice(0, 60),
+				dica     : 'Insira o bloco pelo editor para ver a sintaxe exata; '
+				         + 'não invente tags novas — o tema do mestre depende das que existem.',
+			};
 		}
 
 		case 'brew_criar': {
