@@ -39,17 +39,30 @@
 	--pg-icor-dim   : #a8834a;
 
 	/* semânticas: as únicas cores novas. Escolhidas para não brigar com o
-	 * ouro e para passar AA sobre o vácuo. */
-	--pg-perigo     : #c26571; /* 5,07 sobre vácuo */
-	--pg-cautela    : #c9973f; /* 7,50 sobre vácuo */
-	--pg-sereno     : #6fa39d; /* 6,96 sobre vácuo */
+	 * ouro e para passar AA sobre TODAS as superfícies — inclusive a
+	 * flutuante, que é o fundo de dropdown e modal.
+	 *
+	 * O primeiro --pg-perigo era #c26571. Passava sobre o vácuo (5,07) e
+	 * reprovava sobre a flutuante (3,58) — justamente onde mensagem de erro
+	 * mais aparece. Medir só contra o fundo base escondia o caso que importa. */
+	--pg-perigo     : #d4808a; /* pior caso 4,81 (sobre flutuante) */
+	--pg-cautela    : #c9973f; /* pior caso 5,30 */
+	--pg-sereno     : #6fa39d; /* pior caso 4,91 */
 
 	/* ---- Camada 2: tokens semânticos -------------------------------------
 	 * É isto que a interface consome. Nunca use --pg-* direto num componente.
 	 */
-	--pg-c-fundo          : var(--pg-vacuo);
-	--pg-c-superficie     : var(--pg-vacuo-100);
-	--pg-c-superficie-2   : var(--pg-vacuo-200);
+	/* O fundo de trabalho é o vácuo-100, não o vácuo puro.
+	 *
+	 * #0a0a10 com prata dá 12,58 de contraste, e contraste alto demais em
+	 * tema escuro amplifica halation — o sangramento do texto claro sobre
+	 * fundo quase preto, que é a queixa clássica de fadiga em editor escuro.
+	 * O vácuo puro continua sendo a cor da marca e a base da página; a
+	 * superfície onde se LÊ por horas sobe um degrau. */
+	--pg-c-fundo          : var(--pg-vacuo-100);
+	--pg-c-fundo-profundo : var(--pg-vacuo);
+	--pg-c-superficie     : var(--pg-vacuo-200);
+	--pg-c-superficie-2   : var(--pg-indigo-300);
 	--pg-c-flutuante      : var(--pg-indigo-300);
 
 	--pg-c-texto          : var(--pg-prata);

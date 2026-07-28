@@ -1,4 +1,10 @@
-# Notes
+# Instância privada do pugicordium.quest.
+#
+# O upstream serve uma instância pública, onde só /edit/ precisava ficar fora
+# do índice. Esta é a instância de uma campanha: o material é background de
+# personagem, não conteúdo para buscador.
+#
+# Isto é barreira de boa vontade, não de segurança — crawler que ignora
+# robots.txt continua alcançando tudo.
 User-agent: *
-Disallow: /edit/
-
+Disallow: /

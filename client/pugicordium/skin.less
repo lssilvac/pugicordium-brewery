@@ -59,11 +59,17 @@
  * e não pintou nada.
  * =================================================================== */
 
+/* A barra usa a fonte de CORPO, não a de display.
+ *
+ * NodestoCapsCondensed é uma condensada de capitular, desenhada para título
+ * de capa. Numa barra de 29px de altura, a 1rem e com letter-spacing, ela
+ * perde legibilidade e rouba atenção do documento. A regra do §8 do branding
+ * é "o documento é o herói": se a moldura usa a fonte do quadro, não há
+ * moldura. Display fica restrita ao logotipo e a títulos grandes. */
 .homebrew nav {
 	background-color : var(--pg-c-superficie);
 	border-bottom    : 1px solid var(--pg-c-moldura);
-	font-family      : var(--pg-f-display);
-	letter-spacing   : var(--pg-ls-caps);
+	font-family      : var(--pg-f-corpo);
 }
 
 .homebrew .navItem {
@@ -217,6 +223,45 @@
 	outline-offset : 2px;
 }
 
+/* Exceções que a regra global NÃO alcança.
+ *
+ * Foco visível não vem de graça: o upstream zera outline em 6 lugares, e um
+ * deles com !important. Especificidade não resolve — !important de autor só
+ * perde para outro !important de autor. Sem este bloco, o editor de código,
+ * onde a pessoa passa horas, fica sem indicação de foco nenhuma.
+ *
+ * Esta lista é dívida de merge conhecida: cada release do upstream pode
+ * acrescentar um `outline: none`. Está registrada em MERGE.md. */
+.homebrew {
+	/* codeEditor.less:25 — outline: none !important */
+	.cm-editor.cm-focused {
+		outline        : 2px solid var(--pg-c-foco) !important;
+		outline-offset : -2px;
+	}
+
+	/* splitPane.less:8 */
+	.splitPane:focus-visible,
+	.divider:focus-visible {
+		outline        : 2px solid var(--pg-c-foco);
+		outline-offset : -2px;
+	}
+
+	/* toolBar.less:122 e :159 */
+	.toolBar button:focus-visible,
+	.toolBar input:focus-visible {
+		outline        : 2px solid var(--pg-c-foco);
+		outline-offset : 0;
+	}
+
+	/* core.less:26 e elements.less:62 — mixins .button() e .colorButton(),
+	 * reinjetados em cada botão que os usa */
+	button:focus-visible,
+	a:focus-visible {
+		outline        : 2px solid var(--pg-c-foco);
+		outline-offset : 2px;
+	}
+}
+
 /* Seleção de texto na cor da casa. */
 .homebrew ::selection {
 	background-color : var(--pg-c-selecao);
@@ -228,8 +273,12 @@
  * =================================================================== */
 
 .homebrew {
+	/* Botão usa a fonte de corpo. MrEavesRemake é uma face só de versaletes:
+	 * não tem caixa baixa. Rótulo em versalete perde a forma-de-palavra, que
+	 * é o mecanismo principal de leitura rápida — e o próprio branding diz
+	 * que versalete é para rótulo e cabeçalho de tabela, não para ação. */
 	button:not(.navItem) {
-		font-family   : var(--pg-f-caps);
+		font-family   : var(--pg-f-corpo);
 		border-radius : var(--pg-r-sm);
 		transition    : background-color var(--pg-transicao);
 	}

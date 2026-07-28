@@ -31,13 +31,22 @@ RUN apk --no-cache add git curl
 
 WORKDIR /usr/src/app
 
-# package.json primeiro, para a camada de dependências sobreviver a mudança de
-# código — mesmo motivo do upstream.
-COPY package.json ./
+# package.json E package-lock.json primeiro, para a camada de dependências
+# sobreviver a mudança de código — mesmo motivo do upstream.
+#
+# O lockfile entra de propósito. O upstream copia só o package.json e roda
+# `npm install`, que resolve os ranges de semver do zero a cada build: dois
+# deploys do mesmo commit podem instalar versões diferentes. Num projeto com
+# dependabot ativo (vite 7->8, react-router 7->8 nos últimos meses), isso é
+# um deploy que quebra sozinho, sem ninguém ter mudado código.
+#
+# É a mesma lição que o PLANO.md registra do Atlas, pela porta oposta: lá a
+# falta do lockfile matava o build; aqui ela o tornaria irreprodutível.
+COPY package.json package-lock.json ./
 
 # --ignore-scripts pula o postinstall (que é `npm run build`); o build roda
 # explicitamente depois, com o código já copiado.
-RUN npm install --ignore-scripts
+RUN npm ci --ignore-scripts
 
 COPY . .
 
