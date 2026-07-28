@@ -1,0 +1,45 @@
+# Imagem de produção da instância pugicordium.quest.
+#
+# Arquivo NOVO, de propósito. A regra do fork é somar arquivos e nunca editar
+# os do upstream, para que `git merge upstream/master` continue barato. O
+# `Dockerfile` deles fica intocado.
+#
+# Duas diferenças em relação ao upstream, ambas necessárias:
+#
+# 1. NODE_ENV=production, não `docker`. Com `docker`, `local_environments`
+#    inclui o ambiente e `server/app.js` registra `POST /local/login`, que
+#    devolve um JWT válido para qualquer username enviado — sem senha. Numa
+#    instância exposta na internet isso é autenticação aberta. `production`
+#    também liga o forceSSL e desliga o autoIndex do Mongo.
+#
+# 2. O ENV entra DEPOIS do build. `npm install` respeita NODE_ENV=production e
+#    omite as devDependencies; como o Vite mora lá, o `npm run build` morreria.
+#    Instala e builda sem a env, e só então fixa production para o runtime.
+#
+# O upstream ainda faz `COPY config/docker.json`, arquivo que o `.gitignore`
+# deles esconde — é o que quebra o build de quem clona limpo. Aqui esse COPY
+# não existe: a configuração vem de config/production.json e das envs.
+
+FROM node:26.4.0-alpine
+
+RUN apk --no-cache add git
+
+WORKDIR /usr/src/app
+
+# package.json primeiro, para a camada de dependências sobreviver a mudança de
+# código — mesmo motivo do upstream.
+COPY package.json ./
+
+# --ignore-scripts pula o postinstall (que é `npm run build`); o build roda
+# explicitamente depois, com o código já copiado.
+RUN npm install --ignore-scripts
+
+COPY . .
+
+RUN npm run build
+
+ENV NODE_ENV=production
+
+EXPOSE 8000
+
+CMD [ "npm", "start" ]
